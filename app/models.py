@@ -35,6 +35,6 @@ class Tarea(BaseModel):
     fecha_fin: date
     id_proyecto: int
 
-class EmpleadoTarea(BaseModel):
+class Empleado_Tarea(BaseModel):
     id_empleado: int
     id_tarea: int
