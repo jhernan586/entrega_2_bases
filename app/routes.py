@@ -5,7 +5,6 @@ from typing import List, Optional, Any, Dict
 
 router = APIRouter()
 
-# Rutas para Clientes
 @router.post("/clientes/", response_model=Cliente)
 def create_cliente(cliente: Cliente):
     connection = get_db_connection()
@@ -53,7 +52,6 @@ def get_clientes_proyectos():
     connection.close()
     return results
 
-# Rutas para Proyectos
 @router.post("/proyectos/", response_model=Proyecto)
 def create_proyecto(proyecto: Proyecto):
     connection = get_db_connection()
@@ -102,7 +100,6 @@ def get_proyectos_clientes():
     connection.close()
     return results
 
-# Rutas para Departamentos
 @router.post("/departamentos/", response_model=Departamento)
 def create_departamento(departamento: Departamento):
     connection = get_db_connection()
@@ -136,7 +133,6 @@ def get_departamento(departamento_id: int):
         raise HTTPException(status_code=404, detail="Departamento no encontrado")
     return departamento
 
-# Rutas para Empleados
 @router.post("/empleados/", response_model=Empleado)
 def create_empleado(empleado: Empleado):
     connection = get_db_connection()
@@ -171,22 +167,6 @@ def get_empleado(empleado_id: int):
         raise HTTPException(status_code=404, detail="Empleado no encontrado")
     return empleado
 
-#@router.get("/empleados con tareas/", response_model=List[Dict[str, Any]])
-#def get_empleados_con_tareas():
-    connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT e.id_empleado, e.nombre AS empleado_nombre, COUNT(et.id_tarea) AS total_tareas
-        FROM empleados e 
-        LEFT JOIN empleado_tarea et ON e.id_empleado = et.id_empleado
-        GROUP BY e.id_empleado
-    """)
-    results = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    return results  
-
-# Rutas para Tareas
 @router.post("/tareas/", response_model=Tarea)
 def create_tarea(tarea: Tarea):
     connection = get_db_connection()
@@ -288,45 +268,3 @@ def get_tarea_mas_corta_por_proyecto(proyecto_id: int):
     if tarea is None:
         raise HTTPException(status_code=404, detail="Tarea no encontrada")
     return tarea
-
-#@router.get("/promedio tareas por departamento/", response_model=List[Dict[str, Any]])
-#def get_promedio_tareas_por_departamento():
-    connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT d.id_departamento, d.nombre AS departamento_nombre, AVG(t.total_tareas) AS promedio_tareas
-        FROM departamentos d 
-        LEFT JOIN (
-            SELECT p.id_departamento, COUNT(t.id_tarea) AS total_tareas
-            FROM proyectos p 
-            LEFT JOIN tareas t ON p.id_proyecto = t.id_proyecto
-            GROUP BY p.id_departamento
-        ) AS t ON d.id_departamento = t.id_departamento
-        GROUP BY d.id_departamento
-    """)
-    results = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    return results
-
-# Rutas para EmpleadoTarea
-#@router.post("/empleado_tarea/")
-#def asignar_empleado_tarea(empleado_tarea: Empleado_Tarea):
-    connection = get_db_connection()
-    cursor = connection.cursor()
-    cursor.execute("INSERT INTO empleado_tarea (id_empleado, id_tarea) VALUES (%s, %s)", 
-                   (empleado_tarea.id_empleado, empleado_tarea.id_tarea))
-    connection.commit()
-    cursor.close()
-    connection.close()
-    return {"mensaje": "Empleado asignado a la tarea correctamente"}
-
-#@router.get("/empleado_tarea/")
-#def obtener_empleados_tarea():
-    connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM empleado_tarea")
-    empleado_tarea = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    return empleado_tarea
